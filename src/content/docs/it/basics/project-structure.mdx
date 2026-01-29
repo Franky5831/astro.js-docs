@@ -27,21 +27,30 @@ Una directory di progetto Astro comune potrebbe assomigliare a questa:
 - public/
   - robots.txt
   - favicon.svg
-  - social-image.png
+  - my-cv.pdf
 - src/
+    - blog/
+      - post1.md
+      - post2.md
+      - post3.md
   - components/
     - Header.astro
     - Button.jsx
+  - images/
+    - image1.jpg
+    - image2.jpg
+    - image3.jpg
   - layouts/
     - PostLayout.astro
   - pages/
     - posts/
-      - post1.md
-      - post2.md
-      - post3.md
-    - index.astro
+      - [post].astro
+    - about.astro
+    - **index.astro**
+    - rss.xml.js
   - styles/
     - global.css
+  - content.config.ts
 - astro.config.mjs
 - package.json
 - tsconfig.json
@@ -57,6 +66,7 @@ La cartella `src/` è dove risiede la maggior parte del codice sorgente del tuo 
 - [Componenti del framework UI (React, ecc.)](/it/guides/framework-components/)
 - [Stili (CSS, Sass)](/it/guides/styling/)
 - [Markdown](/it/guides/markdown-content/)
+- [Immagini da ottimizzare ed elaborare con Astro](/it/guides/images/)
 
 Astro elabora, ottimizza e raggruppa i tuoi file `src/` per creare il sito Web finale che viene inviato al browser. A differenza della directory statica `public/`, i tuoi file `src/` sono creati e gestiti per te da Astro.
 
@@ -71,10 +81,6 @@ Sebbene questa guida descriva alcune convenzioni popolari utilizzate nella comun
 I **componenti** sono unità di codice riutilizzabili per le tue pagine HTML. Questi potrebbero essere [componenti Astro](/it/basics/astro-components/) o [componenti del framework UI](/it/guides/framework-components/) come React o Vue. È prassi comune raggruppare e organizzare tutti i componenti del progetto in questa cartella.
 
 Questa è una convenzione comune nei progetti Astro, ma non è richiesta. Sentiti libero di organizzare i tuoi componenti come preferisci!
-
-### `src/content`
-
-La directory `src/content/` è riservata per archiviare le [raccolte di contenuti](/it/guides/content-collections/) e un file di configurazione delle raccolte opzionale. Nessun altro file è consentito all'interno di questa cartella.
 
 ### `src/layouts`
 
@@ -98,7 +104,7 @@ Le [pagine](/it/basics/astro-pages/) sono un tipo speciale di componente utilizz
 
 La directory `public/` è riservata ai file e alle risorse che non necessitano di essere elaborati durante il processo di creazione di Astro. Questi file verranno copiati nella cartella di build senza essere toccati.
 
-Questo comportamento rende `public/` ideale per risorse comuni come immagini e caratteri o file speciali come `robots.txt` e `manifest.webmanifest`.
+Questo comportamento rende `public/` ideale per risorse comuni che non richiedono alcuna elaborazione, come immagini e font, o file speciali come `robots.txt` e `manifest.webmanifest`.
 
 Puoi inserire CSS e JavaScript nella directory `public/`, ma tieni presente che tali file non verranno raggruppati o ottimizzati nella build finale.
 
