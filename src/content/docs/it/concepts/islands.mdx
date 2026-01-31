@@ -1,12 +1,13 @@
 ---
-title: Isole Astro
-description: "Le Isole Astro (note anche come Isole di componenti) sono un pattern di architettura web pionierizzato da Astro. L’“architettura a isole” è stata coniata per la prima volta dall'architetto frontend di Etsy Katie Sylor-Miller nel 2019 e ampliata dal creatore di Preact Jason Miller."
+title: Architettura a isole
+description: Scopri come l'architettura a isole di Astro aiuta a mantenere i siti veloci.
 i18nReady: true
 ---
 
 import IslandsDiagram from '~/components/IslandsDiagram.astro';
+import ReadMore from '~/components/ReadMore.astro';
 
-Astro ha pionierizzato e reso popolare un'architettura frontend chiamata Isole. L'architettura a isole comporta migliori prestazioni frontend aiutandoti a evitare modelli JavaScript monolitici e rimuovendo tutto il JavaScript non essenziale dalla pagina automaticamente. Gli sviluppatori continuano a usare i loro componenti e framework UI preferiti con Astro e ottengono comunque questi benefici.
+Astro ha pionierizzato e reso popolare un nuovo pattern di architettura frontend chiamato **Architettura a isole.** L'architettura a isole funziona renderizzando la maggior parte della tua pagina in HTML statico e veloce con "isole" più piccole di JavaScript aggiunte quando è necessaria interattività o personalizzazione nella pagina (ad esempio, un carosello di immagini). Questo evita i payload JavaScript monolitici che rallentano la reattività di molti altri moderni framework web JavaScript.
 
 ## Una breve lezione di storia
 
@@ -15,17 +16,27 @@ Il termine "isola di componenti" è stato coniato per la prima volta dall'archit
 > L'idea generale di un'architettura a "Isole" è ingannevolmente semplice: renderizzare pagine HTML sul server e iniettare segnaposto o slot intorno a regioni altamente dinamiche [...] che possono quindi essere "idratate" sul client in piccoli widget autosufficienti, riutilizzando il loro HTML renderizzato inizialmente sul server.
 > — Jason Miller, Creatore di Preact
 
-La tecnica su cui si basa questo pattern architettonico è nota anche come **idratazione parziale** o selettiva.
+La tecnica su cui si basa questo pattern architettonico è nota anche come idratazione **parziale** o **selettiva.**
 
 Al contrario, la maggior parte dei framework web basati su JavaScript idratano e renderizzano un intero sito web come un'unica grande applicazione JavaScript (nota anche come applicazione a pagina singola o SPA). Le SPA forniscono semplicità e potenza ma soffrono di problemi di prestazioni di caricamento della pagina a causa dell'elevato utilizzo di JavaScript lato client.
 
 Le SPA hanno il loro posto, anche [incorporate all'interno di una pagina Astro](/it/guides/migrate-to-astro/from-create-react-app/). Ma le SPA mancano della capacità nativa di idratare selettivamente e strategicamente, rendendole una scelta troppo pesante per la maggior parte dei progetti sul web di oggi.
 
-Astro è diventato popolare come il primo framework web JavaScript mainstream con idratazione selettiva integrata, utilizzando quel pattern di isole di componenti coniato per la prima volta da Sylor-Miller. 
+Astro è diventato popolare come il primo framework web JavaScript mainstream con idratazione selettiva integrata, utilizzando quel pattern di isole di componenti coniato per la prima volta da Sylor-Miller. Da allora abbiamo ampliato ed evoluto il lavoro originale di Sylor-Miller, che ha contribuito a ispirare un approccio simile basato su isole di componenti per contenuti renderizzati dinamicamente sul server. 
 
-## Cos'è un isola?
+## Cos'è un'isola?
 
-**In Astro, un'"isola" si riferisce a qualsiasi componente UI interattivo nella pagina.** Pensa a un'isola come a un widget interattivo che galleggia in un mare altrimenti statico e leggero di HTML renderizzato lato server. 
+In Astro, un'isola è un componente UI avanzato su una pagina altrimenti statica di HTML.
+
+Un'[**isola client**](#isole-client) è un componente UI JavaScript interattivo che viene idratato separatamente dal resto della pagina, mentre un'[**isola server**](#isole-server) è un componente UI che renderizza il suo contenuto dinamico sul server separatamente dal resto della pagina.
+
+Entrambe le isole eseguono processi costosi o più lenti in modo indipendente, su base per componente, per caricamenti di pagina ottimizzati.
+
+## Componenti isola
+
+I componenti Astro sono i blocchi di costruzione del tuo template di pagina. Vengono renderizzati in HTML statico senza runtime lato client.
+
+Pensa a un'isola client come a un widget interattivo che galleggia in un mare altrimenti statico e leggero di HTML renderizzato lato server. Le isole server possono essere aggiunte per elementi renderizzati sul server personalizzati o dinamici, come l'immagine del profilo di un visitatore autenticato. 
 
 <IslandsDiagram>
   <Fragment slot="headerApp">Header (isola interattiva)</Fragment>
@@ -38,7 +49,7 @@ Astro è diventato popolare come il primo framework web JavaScript mainstream co
   <Fragment slot="source">Fonte: [Islands Architecture: Jason Miller](https://jasonformat.com/islands-architecture/)</Fragment>
 </IslandsDiagram>
 
-Un'isola funziona sempre in isolamento dalle altre isole nella pagina e possono esistere più isole in una pagina. Le isole possono ancora condividere stato e comunicare tra loro, anche se funzionano in contesti di componenti diversi. 
+Un'isola funziona sempre in isolamento dalle altre isole nella pagina e possono esistere più isole in una pagina. Le isole client possono ancora condividere stato e comunicare tra loro, anche se funzionano in contesti di componenti diversi. 
 
 Questa flessibilità consente ad Astro di supportare più framework UI come [React](https://react.dev/), [Preact](https://preactjs.com/), [Svelte](https://svelte.dev/), [Vue](https://vuejs.org/) e [SolidJS](https://www.solidjs.com/). Poiché sono indipendenti, puoi anche mescolare diversi framework in ogni pagina. 
 
@@ -51,9 +62,9 @@ Anche se la maggior parte degli sviluppatori si atterrà a un solo framework UI,
 - Convertire gradualmente un sito esistente in un altro framework senza tempi di inattività.
 :::
 
-## Creare un isola
+## Isole Client
 
-Per impostazione predefinita, Astro convertirà automaticamente ogni componente UI solo in HTML e CSS, **eliminando tutto il JavaScript lato client automaticamente.**
+Per impostazione predefinita, Astro renderizzerà automaticamente ogni componente UI solo in HTML e CSS, **eliminando tutto il JavaScript lato client automaticamente.**
 
 
 ```astro title="src/pages/index.astro"
@@ -74,14 +85,51 @@ Con le isole, lo JavaScript lato client viene caricato solo per i componenti int
 
 E poiché l'interazione è configurata a livello di componente, puoi gestire diverse priorità di caricamento per ogni componente in base al suo utilizzo. Ad esempio, `client:idle` dice a un componente di caricarsi quando il browser diventa inattivo e `client:visible` dice a un componente di caricarsi solo una volta che entra nel viewport.
 
-## Quali sono i vantaggi delle isole?
+<h3>Vantaggi delle isole client</h3>
 
-Il vantaggio più ovvio nella creazione con le Isole Astro è la prestazione: la maggior parte del tuo sito web viene convertita in HTML e CSS veloci e statici e lo JavaScript viene caricato solo per i singoli componenti che ne hanno bisogno. Lo JavaScript è uno degli asset più lenti che puoi caricare per byte, quindi ogni byte conta.  
+Il vantaggio più ovvio nella creazione con le Isole Astro è la prestazione: la maggior parte del tuo sito web viene convertita in HTML statico veloce e lo JavaScript viene caricato solo per i singoli componenti che ne hanno bisogno. Lo JavaScript è uno degli asset più lenti che puoi caricare per byte, quindi ogni byte conta.  
 
-Un altro vantaggio è il caricamento parallelo. Nell'esempio di illustrazione sopra, l'"isola carosello immagini" a bassa priorità non deve bloccare l'"isola intestazione" ad alta priorità. I due vengono caricati in parallelo e idratati in isolamento, il che significa che l'intestazione diventa interattiva immediatamente senza dover attendere il carosello di immagini più pesante più in basso nella pagina.  
+Un altro vantaggio è il caricamento parallelo. Nell'esempio di illustrazione sopra, l'"isola carosello immagini" a bassa priorità non deve bloccare l'"isola intestazione" ad alta priorità. Le due vengono caricate in parallelo e idratate in isolamento, il che significa che l'intestazione diventa interattiva immediatamente senza dover attendere il carosello più pesante più in basso nella pagina.
 
 Ancora meglio, puoi dire ad Astro esattamente come e quando renderizzare ogni componente. Se quel carosello di immagini è davvero costoso da caricare, puoi allegare una [direttiva client](/it/reference/directives-reference/#client-directives) speciale che dice ad Astro di caricare il carosello solo quando diventa visibile nella pagina. Se l'utente non lo vede mai, non viene mai caricato.
 
 In Astro, sta a te come sviluppatore dire esplicitamente ad Astro quali componenti nella pagina devono essere eseguiti anche nel browser. Astro idraterà esattamente ciò che è necessario nella pagina e lascerà il resto del tuo sito come HTML statico.
 
-**Le Isole sono il segreto della storia delle prestazioni veloci per impostazione predefinita di Astro!**
+**Le isole client sono il segreto della storia delle prestazioni veloci per impostazione predefinita di Astro!**
+
+<ReadMore>Scopri di più sull'[utilizzo di componenti di framework JavaScript](/it/guides/framework-components/) nel tuo progetto.</ReadMore>
+
+## Isole Server
+
+Le isole server sono un modo per spostare il codice lato server costoso o lento fuori dal processo di rendering principale, rendendo facile combinare HTML statico ad alte prestazioni e componenti generati dinamicamente sul server.
+
+Aggiungi la [direttiva `server:defer`](/it/reference/directives-reference/#server-directives) a qualsiasi componente Astro sulla tua pagina per trasformarlo nella propria isola server:
+
+```astro title="src/pages/index.astro" "server:defer"
+---
+import Avatar from "../components/Avatar.astro";
+---
+<Avatar server:defer />
+```
+
+Questo suddivide la tua pagina con aree più piccole di contenuto renderizzato sul server che vengono caricate ciascuna in parallelo.
+
+Il contenuto principale della tua pagina può essere renderizzato immediatamente con contenuto segnaposto, come un avatar generico, fino a quando il contenuto della tua isola non è disponibile. Con le isole server, avere piccoli componenti di contenuto personalizzato non ritarda il rendering di una pagina altrimenti statica.
+
+Questo pattern di rendering è stato costruito per essere portabile. Non dipende da alcuna infrastruttura server, quindi funzionerà con qualsiasi host, da un server Node.js in un container Docker al provider serverless di tua scelta.
+
+<h3>Vantaggi delle isole server</h3>
+
+Un vantaggio delle isole server è la capacità di renderizzare le parti più altamente dinamiche della tua pagina al volo. Questo consente al guscio esterno e al contenuto principale di essere memorizzati in cache in modo più aggressivo, fornendo prestazioni più veloci.
+
+Un altro vantaggio è fornire un'ottima esperienza ai visitatori. Le isole server sono ottimizzate e si caricano rapidamente, spesso anche prima che il browser abbia persino dipinto la pagina. Ma nel breve tempo necessario per il rendering delle tue isole, puoi visualizzare contenuto di fallback personalizzato e prevenire qualsiasi spostamento del layout.
+
+Un esempio di sito che beneficia delle isole server di Astro è un negozio e-commerce. Sebbene il contenuto principale delle pagine prodotto cambi raramente, queste pagine hanno tipicamente alcuni elementi dinamici:
+
+- L'avatar dell'utente nell'intestazione.
+- Offerte speciali e saldi per il prodotto.
+- Recensioni degli utenti.
+
+Utilizzando le isole server per questi elementi, il tuo visitatore vedrà la parte più importante della pagina, il tuo prodotto, immediatamente. Avatar generici, spinner di caricamento e annunci del negozio possono essere visualizzati come contenuto di fallback fino a quando le parti personalizzate non sono disponibili.
+
+<ReadMore>Scopri di più sull'[utilizzo delle isole server](/it/guides/server-islands/) nel tuo progetto.</ReadMore>
